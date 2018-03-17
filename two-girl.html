@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Document</title>
+	<link rel="stylesheet" href="">
+	<<script type="text/javascript">
+		var zeng={
+			name:"Xing-dog",
+			attack:80,
+			hp:600,
+			speed:80,
+			skill:["bite you","high jump","book touch"],
+			birth:1997
+		};
+		var he={
+			name:"Bear-sisiter",
+			attack:60,
+			hp:800,
+			speed:50,
+			skill:["angry","big push","qinqin"],
+			birth:1997
+		};
+
+		function whoFirst(){
+			if (zeng.speed*Math.random()>he.speed*Math.random()) {
+				return [zeng, he];
+			}
+			else{
+				return [he, zeng]
+			}
+		}
+		function game(){
+			var arr=whoFirst();
+			var attacker=arr[0];
+			var defender=arr[1];
+
+			defender.hp=defender.hp-attacker.attack;
+			var skills=attacker.skill;
+			var attackskill=skills[Math.floor(Math.random()*skills.length)];
+			document.write(attacker.name + ' use a skill <b>' + attackskill + "</b><br/>");
+			document.write(defender.name + ' left hp ' + defender.hp + "<br/>");
+			document.write(attacker.name + ' left hp ' + attacker.hp + "<br/><hr/>");
+
+            var out=setTimeout("game()",1500)//run game per 1500ms
+             if (defender.hp<=0) {
+               	document.write(attacker.name + " win!")
+                clearTimeout(out);
+            }
+         
+		}
+	</script>
+</head>
+<body onload="game()"> 
+	
+</body>
+</html>

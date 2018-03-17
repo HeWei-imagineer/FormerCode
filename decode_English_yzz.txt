@@ -1,0 +1,305 @@
+var globalTimer=null;
+
+function doUnit() {
+    var timer = setInterval(function () {
+        if (!fillUnit()){
+            clearInterval(timer);
+			alert('已做完！');
+			}
+    }, 2000);
+	globalTimer=timer;
+}
+
+function doPart() {
+    var timer = setInterval(function () {
+        if (!fillPart()){
+            clearInterval(timer);
+			alert('已做完！');
+			}
+    }, 2000);
+	globalTimer=timer;
+}
+
+function stop(){
+	clearInterval(globalTimer);
+}
+
+function fillUnit() {
+try{
+    var ct = document.getElementById('Content');
+    var mfw = ct.contentWindow.mainFrame;
+    var mfd = ct.contentDocument.getElementsByName('mainFrame')[0];
+    var tpw = ct.contentWindow.topFrame;
+    var btw = ct.contentWindow.bottomFrame;
+    var btd = ct.contentDocument.getElementsByName('bottomFrame')[0];
+    if (mfd.contentDocument.getElementById('TakeAgain') !== null)
+        mfw.onTakeAgain('');
+    if (mfd.contentDocument.getElementById('Clear') !== null)
+        mfw.onClearIncorrect();
+    if (mfw.state === mfw.STATE_SUBMITTED_TWICE) {
+        console.log("无练习的页面");
+        return jumpToNextPageOrPart();
+    }
+    for (var j = 0; j < mfw.questionId.length; j++) {
+        var udTexts=mfd.contentDocument.getElementsByClassName('passage ud_text');
+        if(udTexts.length>0){
+            for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                mfw.ud.toggleUnderline(Number(mfw.questionId[j].split('_')[4]) - 1, Number(tpw.questionsArr[mfw.questionId[j]].choices[i].choiceID.split('_')[5]));
+            }
+        }
+        var inputs = mfd.contentDocument.getElementsByName(mfw.questionId[j]);
+        if(inputs.length>0) {
+            switch (inputs[0].type) {
+                case 'radio':
+                    for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                        if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+                            inputs[i].checked = true;
+                            break;
+                        }
+                    }
+                    break;
+                case 'select-one':
+                    for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                        if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+                            inputs[0].selectedIndex = i;
+                            break;
+                        }
+                    }
+                    break;
+                case 'text':
+                case 'textarea':
+                    if (tpw.questionsArr[mfw.questionId[j]].choices[0].choiceText === '')
+                        inputs[0].value = 'Default answer.';
+                    else
+                        inputs[0].value = tpw.questionsArr[mfw.questionId[j]].choices[0].choiceText;
+                    break;
+                default:
+                    break;
+            }
+        }else{
+			for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+					mfd.contentDocument.getElementsByName(tpw.questionsArr[mfw.questionId[j]].choices[i].choiceID)[0].checked = true;
+                }
+            }
+		}
+    }
+    mfd.contentDocument.getElementById('CheckAnswer').onclick();
+    return jumpToNextPageOrPart();
+	}catch(e){
+	return jumpToNextPageOrPart();
+	}
+}
+
+function fillPart() {
+try{
+    var ct = document.getElementById('Content');
+    var mfw = ct.contentWindow.mainFrame;
+    var mfd = ct.contentDocument.getElementsByName('mainFrame')[0];
+    var tpw = ct.contentWindow.topFrame;
+    var btw = ct.contentWindow.bottomFrame;
+    var btd = ct.contentDocument.getElementsByName('bottomFrame')[0];
+    if (mfd.contentDocument.getElementById('TakeAgain') !== null)
+        mfw.onTakeAgain('');
+    if (mfd.contentDocument.getElementById('Clear') !== null)
+        mfw.onClearIncorrect();
+    if (mfw.state === mfw.STATE_SUBMITTED_TWICE) {
+        console.log("无练习的页面");
+        return jumpToNextPage();
+    }
+    for (var j = 0; j < mfw.questionId.length; j++) {
+        var udTexts=mfd.contentDocument.getElementsByClassName('passage ud_text');
+        if(udTexts.length>0){
+            for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                mfw.ud.toggleUnderline(Number(mfw.questionId[j].split('_')[4]) - 1, Number(tpw.questionsArr[mfw.questionId[j]].choices[i].choiceID.split('_')[5]));
+            }
+        }
+        var inputs = mfd.contentDocument.getElementsByName(mfw.questionId[j]);
+        if(inputs.length>0) {
+            switch (inputs[0].type) {
+                case 'radio':
+                    for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                        if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+                            inputs[i].checked = true;
+                            break;
+                        }
+                    }
+                    break;
+                case 'select-one':
+                    for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                        if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+                            inputs[0].selectedIndex = i;
+                            break;
+                        }
+                    }
+                    break;
+                case 'text':
+                case 'textarea':
+                    if (tpw.questionsArr[mfw.questionId[j]].choices[0].choiceText === '')
+                        inputs[0].value = 'Default answer.';
+                    else
+                        inputs[0].value = tpw.questionsArr[mfw.questionId[j]].choices[0].choiceText;
+                    break;
+                default:
+                    break;
+            }
+        }else{
+			for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+					mfd.contentDocument.getElementsByName(tpw.questionsArr[mfw.questionId[j]].choices[i].choiceID)[0].checked = true;
+                }
+            }
+		}
+    }
+    mfd.contentDocument.getElementById('CheckAnswer').onclick();
+    return jumpToNextPage();
+	}catch(e){
+	return jumpToNextPage();
+	}
+}
+
+function doPage() {
+try{
+    var ct = document.getElementById('Content');
+    var mfw = ct.contentWindow.mainFrame;
+    var mfd = ct.contentDocument.getElementsByName('mainFrame')[0];
+    var tpw = ct.contentWindow.topFrame;
+    var btw = ct.contentWindow.bottomFrame;
+    var btd = ct.contentDocument.getElementsByName('bottomFrame')[0];
+    if (mfd.contentDocument.getElementById('TakeAgain') !== null)
+        mfw.onTakeAgain('');
+    if (mfd.contentDocument.getElementById('Clear') !== null)
+        mfw.onClearIncorrect();
+    if (mfw.state === mfw.STATE_SUBMITTED_TWICE) {
+        console.log("无练习的页面");
+        return false;
+    }
+    for (var j = 0; j < mfw.questionId.length; j++) {
+        var udTexts=mfd.contentDocument.getElementsByClassName('passage ud_text');
+        if(udTexts.length>0){
+            for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                mfw.ud.toggleUnderline(Number(mfw.questionId[j].split('_')[4]) - 1, Number(tpw.questionsArr[mfw.questionId[j]].choices[i].choiceID.split('_')[5]));
+            }
+        }
+        var inputs = mfd.contentDocument.getElementsByName(mfw.questionId[j]);
+        if(inputs.length>0) {
+            switch (inputs[0].type) {
+                case 'radio':
+                    for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                        if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+                            inputs[i].checked = true;
+                            break;
+                        }
+                    }
+                    break;
+                case 'select-one':
+                    for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                        if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+                            inputs[0].selectedIndex = i;
+                            break;
+                        }
+                    }
+                    break;
+                case 'text':
+                case 'textarea':
+                    if (tpw.questionsArr[mfw.questionId[j]].choices[0].choiceText === '')
+                        inputs[0].value = 'Default answer.';
+                    else
+                        inputs[0].value = tpw.questionsArr[mfw.questionId[j]].choices[0].choiceText;
+                    break;
+                default:
+                    break;
+            }
+        }else{
+			for (var i = 0; i < tpw.questionsArr[mfw.questionId[j]].choices.length; i++) {
+                if (Number(tpw.questionsArr[mfw.questionId[j]].choices[i].score) !== 0) {
+					mfd.contentDocument.getElementsByName(tpw.questionsArr[mfw.questionId[j]].choices[i].choiceID)[0].checked = true;
+                }
+            }
+		}
+    }
+    mfd.contentDocument.getElementById('CheckAnswer').onclick();
+    return false;
+	}catch(e){
+	return false;
+	}
+}
+
+function jumpToNextPage() {
+	if(document.getElementById('code').contentDocument.getElementsByClassName('nodeTitleOn').length===0){
+		return false;
+	}
+    var ct = document.getElementById('Content');
+    var btw = ct.contentWindow.bottomFrame;
+	var mfw = ct.contentWindow.mainFrame;
+    var url = mfw.location.href;
+    var pos = url.search('.html');
+    var urlPrefix = url.substr(0, pos - 2);
+    var curr = url.substr(pos - 2, 2);
+    var nextUrl = '';
+    curr++;
+    if (curr <= btw.pagelist.length) {
+        if (curr < 10)
+            nextUrl = urlPrefix + "0" + curr + ".html";
+        else
+            nextUrl = urlPrefix + curr + ".html";
+        btw.nextPage = btw.currPage + 1;
+        mfw.onNavigate(nextUrl);
+        btw.currPage = btw.nextPage;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function jumpToNextPageOrPart() {
+	if(document.getElementById('code').contentDocument.getElementsByClassName('nodeTitleOn').length===0){
+		jumpToNextPart();
+	}
+    var ct = document.getElementById('Content');
+    var btw = ct.contentWindow.bottomFrame;
+	var mfw = ct.contentWindow.mainFrame;
+    var url = mfw.location.href;
+    var pos = url.search('.html');
+    var urlPrefix = url.substr(0, pos - 2);
+    var curr = url.substr(pos - 2, 2);
+    var nextUrl = '';
+    curr++;
+    if (curr <= btw.pagelist.length) {
+        if (curr < 10)
+            nextUrl = urlPrefix + "0" + curr + ".html";
+        else
+            nextUrl = urlPrefix + curr + ".html";
+        btw.nextPage = btw.currPage + 1;
+        mfw.onNavigate(nextUrl);
+        btw.currPage = btw.nextPage;
+        return true;
+    } else {
+        return jumpToNextPart();
+    }
+}
+
+function jumpToNextPart() {
+    var parts=new Array();
+    var cdd = document.getElementById('code');
+    var currId = cdd.contentDocument.getElementsByClassName('nodeTitleOn');
+    var divs = cdd.contentDocument.getElementsByTagName('div');
+    var reg=/^item_[0-9]{5}_[0-0]{1}$/;
+    var currIndex=-1;
+    for (var i = 0; i < divs.length; i++) {
+        if (reg.test(divs[i].id)) {
+            parts.push(divs[i].id);
+        }
+    }
+    if(currId.length>0){
+        currId=currId[0].id;
+        currIndex=parts.indexOf(currId);
+    }
+    if(currIndex+1<parts.length){
+        var ids = parts[currIndex+1].split('_');
+        window.launchItem(ids[1], 0, 'curr');
+        return true;
+    }else{
+        return false;
+    }
+}
